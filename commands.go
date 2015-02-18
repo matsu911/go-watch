@@ -11,7 +11,10 @@ import (
 )
 
 func termWidth() (width int) {
-	width, _, _ = terminal.GetSize(0)
+	width, _, err := terminal.GetSize(0)
+	if err != nil {
+		debug("Failed to get terminal size: %v.\n", err)
+	}
 	return
 }
 
@@ -41,34 +44,46 @@ func run() {
 	header("")
 }
 
+func printer(title, output string) {
+	if output != "" {
+		header(title)
+		fmt.Print(output)
+	}
+}
+
 func generate() {}
 
 func lint() {
-	header("Lint")
-	runCommand("golint *.go")
+	output := runCommand("golint *.go")
+	printer("Lint", output)
 }
 
 func vet() {
-	header("Vet")
-	runCommand("go vet")
+	output := runCommand("go vet")
+	printer("Vet", output)
 }
 
 func test() {
-	header("Test")
-	runCommand("")
+	output := runCommand("go test -race -coverprofile='coverage' -tags debug")
+	printer("Test", output)
 }
 
 func coverage() {
-	header("Coverage")
-	runCommand("go test -race -coverprofile='coverage'")
+	output := runCommand("go tool cover -func='coverage'")
+	printer("Coverage", output)
 }
 
-func runCommand(command string) {
+func runCommand(command string) string {
 	cmd := exec.Command("/bin/bash", "-c", command)
-	out, err := cmd.Output()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error!")
-		return
+		switch err.Error() {
+		case "exit status 2":
+			debug("Command returned an expected error: %v.\n", err)
+		default:
+			debug("Command returned: %v.\n", err)
+			// panic(err)
+		}
 	}
-	fmt.Print(string(out))
+	return string(out)
 }

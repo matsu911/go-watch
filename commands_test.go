@@ -17,3 +17,8 @@ func (s *S) TestTermWidth(c *C) {
 	c.Check(termWidth(), Equals, -1)
 
 }
+
+func (s *S) TestRunCommand(c *C) {
+	c.Check(runCommand("echo Hello"), Equals, "Hello\n")
+
+}

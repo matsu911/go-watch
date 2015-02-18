@@ -6,6 +6,7 @@ import (
 	"golang.org/x/exp/fsnotify"
 )
 
+// Watch will watch a path for changes and run the set of commands against them when changes happen.
 func Watch(path string) {
 	ch := make(chan bool, 1)
 	startWatching(path, ch)
@@ -14,7 +15,7 @@ func Watch(path string) {
 		for {
 			select {
 			case event := <-ch:
-				log.Printf("Event happened! %v", event)
+				debug("Event happened! %v", event)
 				run()
 			}
 		}
@@ -35,10 +36,10 @@ func startWatching(path string, ch chan bool) {
 			case ev := <-watcher.Event:
 				if ev.IsCreate() {
 					rateLimit(ch)
-					log.Println("event:", ev)
+					debug("event:", ev)
 				}
 			case err := <-watcher.Error:
-				log.Println("error:", err)
+				debug("error:", err)
 			}
 		}
 	}()
