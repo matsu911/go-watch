@@ -15,7 +15,6 @@ var _ = Suite(&S{})
 
 func (s *S) TestTermWidth(c *C) {
 	c.Check(termWidth(), Equals, -1)
-
 }
 
 func (s *S) TestRunCommand(c *C) {

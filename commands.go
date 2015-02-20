@@ -64,12 +64,14 @@ func vet() {
 }
 
 func test() {
-	output := runCommand("go test -race -coverprofile='coverage' -tags debug")
+	output := runCommand("go test -race -coverprofile='coverage'")
+	// output := runCommand("go test -race -coverprofile='coverage' -tags debug")
 	printer("Test", output)
 }
 
 func coverage() {
 	output := runCommand("go tool cover -func='coverage'")
+	// _ = runCommand("rm ./coverage")
 	printer("Coverage", output)
 }
 
