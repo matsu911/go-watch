@@ -15,11 +15,12 @@ func termWidth() (width int) {
 	width, _, err := terminal.GetSize(0)
 	if err != nil {
 		debug("Failed to get terminal size: %v.\n", err)
+		return 80
 	}
 	return
 }
 
-func header(s string, c color.Attribute) {
+func header(s string, c color.Attribute) string {
 	headerColor := color.New(c).SprintfFunc()
 
 	h := strings.Repeat("=", termWidth()-len(s)-2)
@@ -27,17 +28,7 @@ func header(s string, c color.Attribute) {
 	h2 := headerColor("%s", h[4:])
 	s = color.RedString(" %s ", s)
 
-	h = h1 + s + h2
-
-	fmt.Println(h)
-}
-
-func greenHeader(s string) {
-	header(s, color.FgGreen)
-}
-
-func magentaHeader(s string) {
-	header(s, color.FgMagenta)
+	return h1 + s + h2
 }
 
 func run(count int) {
@@ -46,12 +37,12 @@ func run(count int) {
 	vet()
 	test()
 	coverage()
-	magentaHeader(strconv.Itoa(count))
+	fmt.Println(header(strconv.Itoa(count), color.FgMagenta))
 }
 
 func printer(title, output string) {
 	if output != "" {
-		greenHeader(title)
+		fmt.Println(header(title, color.FgGreen))
 		fmt.Print(output)
 	}
 }
@@ -88,8 +79,7 @@ func runCommand(command string) string {
 		case "exit status 2":
 			debug("Command returned an expected error: %v.\n", err)
 		default:
-			debug("Command returned: %v.\n", err)
-			// panic(err)
+			debug("Command returned an unexpected error: %v.\n", err)
 		}
 	}
 	return string(out)

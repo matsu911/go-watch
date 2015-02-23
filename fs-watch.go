@@ -1,10 +1,12 @@
 package gowatch
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/beefsack/go-rate"
+	"github.com/fatih/color"
 	"golang.org/x/exp/fsnotify"
 )
 
@@ -52,7 +54,7 @@ func startWatching(path string, ch chan int) {
 	}()
 
 	// Run commands on first run.
-	magentaHeader("1")
+	fmt.Println(header("1", color.FgMagenta))
 	ch <- 1
 
 	// Run commands every time a file changes.
