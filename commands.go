@@ -3,6 +3,7 @@ package gowatch
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -18,35 +19,39 @@ func termWidth() (width int) {
 	return
 }
 
-func header(s string) {
-	headerColor := color.New(color.FgMagenta).SprintfFunc()
-	if s != "" {
-		s = " " + s + " "
-		headerColor = color.New(color.FgGreen).SprintfFunc()
-	}
+func header(s string, c color.Attribute) {
+	headerColor := color.New(c).SprintfFunc()
 
-	h := strings.Repeat("=", termWidth()-len(s))
+	h := strings.Repeat("=", termWidth()-len(s)-2)
 	h1 := headerColor("%s", h[0:4])
 	h2 := headerColor("%s", h[4:])
-	s = color.RedString("%s", s)
+	s = color.RedString(" %s ", s)
 
 	h = h1 + s + h2
 
 	fmt.Println(h)
 }
 
-func run() {
+func greenHeader(s string) {
+	header(s, color.FgGreen)
+}
+
+func magentaHeader(s string) {
+	header(s, color.FgMagenta)
+}
+
+func run(count int) {
 	generate()
 	lint()
 	vet()
 	test()
 	coverage()
-	header("")
+	magentaHeader(strconv.Itoa(count))
 }
 
 func printer(title, output string) {
 	if output != "" {
-		header(title)
+		greenHeader(title)
 		fmt.Print(output)
 	}
 }

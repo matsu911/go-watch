@@ -13,12 +13,15 @@ func Watch(path string) {
 	ch := make(chan int, 1)
 	startWatching(path, ch)
 
+	// Counter to run in between each session.
+	counter := intSeq()
+
 	go func() {
 		for {
 			select {
 			case event := <-ch:
 				debug("Event happened! %v", event)
-				run()
+				run(counter())
 			}
 		}
 	}()
@@ -49,7 +52,7 @@ func startWatching(path string, ch chan int) {
 	}()
 
 	// Run commands on first run.
-	header("")
+	magentaHeader("1")
 	ch <- 1
 
 	// Run commands every time a file changes.
@@ -64,5 +67,13 @@ func rateLimit(ch chan int, rl *rate.RateLimiter) {
 		ch <- 2
 	} else {
 		debug("Spam filter triggered, please wait %s\n", remaining)
+	}
+}
+
+func intSeq() func() int {
+	i := 1
+	return func() int {
+		i++
+		return i
 	}
 }
