@@ -8,19 +8,19 @@ import (
 
 	"github.com/fatih/color"
 
-	"code.google.com/p/go.crypto/ssh/terminal"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func termWidth() (width int) {
 	width, _, err := terminal.GetSize(0)
 	if err != nil {
 		debug("Failed to get terminal size: %v.\n", err)
-		return 80
+		width = 80
 	}
 	return
 }
 
-func printer(title, output string) {
+func print(title, output string) {
 	if output != "" {
 		fmt.Println(header(title, color.FgGreen))
 		fmt.Print(output)
@@ -39,44 +39,25 @@ func header(s string, c color.Attribute) string {
 }
 
 func run(count int) {
-	generate()
-	lint()
-	vet()
-	test()
-	coverage()
-	grind()
-	fmt.Println(header(strconv.Itoa(count), color.FgMagenta))
-}
-
-func generate() {}
-
-func lint() {
 	output := runCommand("golint *.go")
-	printer("Lint", output)
-}
+	print("Lint", output)
 
-func vet() {
-	output := runCommand("go vet")
-	printer("Vet", output)
-}
+	output = runCommand("go vet")
+	print("Vet", output)
+	output = runCommand("go test -race -coverprofile='coverage'")
+	// output = runCommand("go test -race -coverprofile='coverage' -tags debug")
+	print("Test", output)
 
-func test() {
-	output := runCommand("go test -race -coverprofile='coverage'")
-	// output := runCommand("go test -race -coverprofile='coverage' -tags debug")
-	printer("Test", output)
-}
-
-func coverage() {
-	output := runCommand("go tool cover -func='coverage'")
+	output = runCommand("go tool cover -func='coverage'")
 	// _ = runCommand("rm ./coverage")
-	printer("Coverage", output)
-}
+	print("Coverage", output)
 
-func grind() {
-	output := runCommand("grind -diff ./")
+	output = runCommand("grind -diff ./")
 	if output != "0\n" {
-		printer("Grind", output)
+		print("Grind", output)
 	}
+
+	fmt.Println(header(strconv.Itoa(count), color.FgMagenta))
 }
 
 func runCommand(command string) string {

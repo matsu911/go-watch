@@ -1,9 +1,8 @@
-// +build debug
+// +build !debug
 
 package gowatch
 
-import "log"
+const debugOn = false
 
 func debug(fmt string, args ...interface{}) {
-	log.Printf(fmt, args...)
 }

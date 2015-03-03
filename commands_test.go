@@ -18,5 +18,5 @@ func (s *S) TestHeader(c *C) {
 }
 
 func (s *S) TestPrinter(c *C) {
-	c.Check(header("Test", color.FgRed), Equals, "\x1b[31m====\x1b[0m\x1b[31m Test \x1b[0m\x1b[31m======================================================================\x1b[0m")
+	c.Check(printer("Test", ""), Equals, "")
 }
