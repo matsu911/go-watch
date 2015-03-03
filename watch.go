@@ -12,7 +12,7 @@ import (
 
 // Watch will watch a path for changes and run the set of commands against them when changes happen.
 func Watch(path string) {
-	ch := make(chan int, 1)
+	ch := make(chan bool, 1)
 	startWatching(path, ch)
 
 	// Counter to run in between each session.
@@ -32,14 +32,14 @@ func Watch(path string) {
 	select {}
 }
 
-func startWatching(path string, ch chan int) {
+func startWatching(path string, ch chan bool) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rl := rate.New(1, time.Second/4)
 	go func() {
+		rl := rate.New(1, time.Second/4)
 		for {
 			select {
 			case ev := <-watcher.Event:
@@ -55,7 +55,7 @@ func startWatching(path string, ch chan int) {
 
 	// Run commands on first run.
 	fmt.Println(header("1", color.FgMagenta))
-	ch <- 1
+	ch <- true
 
 	// Run commands every time a file changes.
 	err = watcher.Watch(path)
@@ -64,11 +64,12 @@ func startWatching(path string, ch chan int) {
 	}
 }
 
-func rateLimit(ch chan int, rl *rate.RateLimiter) {
+// rateLimit is a leaky bucket which allows one execution per quarter second and does not queue.
+func rateLimit(ch chan bool, rl *rate.RateLimiter) {
 	if ok, remaining := rl.Try(); ok {
-		ch <- 2
+		ch <- true
 	} else {
-		debug("Spam filter triggered, please wait %s\n", remaining)
+		debug("Rate limited for another %s seconds.\n", remaining)
 	}
 }
 

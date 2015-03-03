@@ -20,6 +20,13 @@ func termWidth() (width int) {
 	return
 }
 
+func printer(title, output string) {
+	if output != "" {
+		fmt.Println(header(title, color.FgGreen))
+		fmt.Print(output)
+	}
+}
+
 func header(s string, c color.Attribute) string {
 	headerColor := color.New(c).SprintfFunc()
 
@@ -37,14 +44,8 @@ func run(count int) {
 	vet()
 	test()
 	coverage()
+	grind()
 	fmt.Println(header(strconv.Itoa(count), color.FgMagenta))
-}
-
-func printer(title, output string) {
-	if output != "" {
-		fmt.Println(header(title, color.FgGreen))
-		fmt.Print(output)
-	}
 }
 
 func generate() {}
@@ -69,6 +70,13 @@ func coverage() {
 	output := runCommand("go tool cover -func='coverage'")
 	// _ = runCommand("rm ./coverage")
 	printer("Coverage", output)
+}
+
+func grind() {
+	output := runCommand("grind -diff ./")
+	if output != "0\n" {
+		printer("Grind", output)
+	}
 }
 
 func runCommand(command string) string {
