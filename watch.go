@@ -7,7 +7,7 @@ import (
 
 	"github.com/beefsack/go-rate"
 	"github.com/fatih/color"
-	"golang.org/x/exp/fsnotify"
+	"github.com/fsnotify/fsnotify"
 )
 
 // Watch will watch a path for changes and run the set of commands against them when changes happen.
@@ -42,12 +42,12 @@ func startWatching(path string, ch chan bool) {
 		rl := rate.New(1, time.Second/4)
 		for {
 			select {
-			case ev := <-watcher.Event:
-				if ev.IsCreate() {
+			case ev := <-watcher.Events:
+				if ev.Op&fsnotify.Write == fsnotify.Write {
 					rateLimit(ch, rl)
 					debug("event:", ev)
 				}
-			case err := <-watcher.Error:
+			case err := <-watcher.Errors:
 				debug("error:", err)
 			}
 		}
@@ -58,7 +58,7 @@ func startWatching(path string, ch chan bool) {
 	ch <- true
 
 	// Run commands every time a file changes.
-	err = watcher.Watch(path)
+	err = watcher.Add(path)
 	if err != nil {
 		log.Fatal(err)
 	}

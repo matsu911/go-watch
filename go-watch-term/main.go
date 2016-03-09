@@ -1,6 +1,6 @@
 package main
 
-import "github.com/dmikalova/go-watch"
+import "github.com/matsu911/go-watch"
 
 func main() {
 	gowatch.Watch(".")
