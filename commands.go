@@ -17,6 +17,9 @@ func termWidth() (width int) {
 		debug("Failed to get terminal size: %v.\n", err)
 		width = 80
 	}
+	if width == 0 {
+		width = 80
+	}
 	return
 }
 
